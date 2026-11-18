@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Who Ate the Labeled Lunch? | Interactive IBPO Case #01 & Bonus Case #31</title>
+  <meta name="description" content="Play Case #01 and Bonus Holiday Case #31 from 'Who Ate the Labeled Lunch?: 30 Petty Workplace Cold Cases' — an interactive detective logic puzzle dossier." />
+  <style>
+    :root {
+      --bg: #0e1620;
+      --panel: #182232;
+      --card: #f8fafc;
+      --ink: #0f172a;
+      --yellow: #facc15;
+      --red: #dc2626;
+      --green: #16a34a;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: #f1f5f9;
+      line-height: 1.55;
+      padding-bottom: 60px;
+    }
+    .hazard {
+      height: 14px;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--yellow),
+        var(--yellow) 12px,
+        #0e1620 12px,
+        #0e1620 24px
+      );
+    }
+    header {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 36px 20px 24px;
+      text-align: center;
+    }
+    .pill {
+      display: inline-block;
+      background: var(--red);
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      padding: 5px 14px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.3rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      color: var(--yellow);
+      margin-bottom: 10px;
+    }
+    h1 span { color: #fff; display: block; }
+    .sub {
+      color: #cbd5e1;
+      max-width: 680px;
+      margin: 0 auto 22px;
+      font-size: 1.05rem;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: var(--panel);
+      color: #e2e8f0;
+      border: 2px solid #334155;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: var(--yellow);
+      color: #0f172a;
+      border-color: var(--yellow);
+    }
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+    @media (max-width: 860px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .dossier-card {
+      background: var(--card);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 22px;
+      border: 3px solid var(--yellow);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+    }
+    .dossier-hdr {
+      background: #0f172a;
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 12px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .case-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+    }
+    .summary { font-size: 0.94rem; margin-bottom: 14px; color: #1e293b; }
+    .exhibit {
+      background: #f1f5f9;
+      border: 2px solid #0f172a;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .exhibit-top {
+      background: #0f172a;
+      color: var(--yellow);
+      font-family: ui-monospace, monospace;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 6px 10px;
+    }
+    .exhibit pre {
+      padding: 10px 12px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      color: #0f172a;
+    }
+    .clues h3 {
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .clues li {
+      list-style: none;
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+      padding-left: 26px;
+      position: relative;
+    }
+    .clues li strong {
+      position: absolute;
+      left: 0;
+      font-family: ui-monospace, monospace;
+    }
+    /* Interactive Logic Grid */
+    .grid-help {
+      font-size: 0.85rem;
+      color: #475569;
+      margin-bottom: 12px;
+    }
+    .matrix-wrap {
+      overflow-x: auto;
+      margin-bottom: 18px;
+    }
+    table.lgrid {
+      border-collapse: collapse;
+      margin: 0 auto;
+      font-size: 12px;
+    }
+    table.lgrid th, table.lgrid td {
+      border: 1px solid #64748b;
+      text-align: center;
+    }
+    table.lgrid th.vhead {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      height: 118px;
+      padding: 8px 5px;
+      background: #e2e8f0;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    table.lgrid th.rhead {
+      text-align: right;
+      padding: 6px 10px;
+      background: #e2e8f0;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    table.lgrid td.cell {
+      width: 38px;
+      height: 38px;
+      background: #fff;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 17px;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    table.lgrid td.cell:hover { background: #fef9c3; }
+    table.lgrid td.cell[data-val="X"] { color: #dc2626; }
+    table.lgrid td.cell[data-val="O"] { color: #16a34a; background: #dcfce7; }
+    table.lgrid td.thick-r { border-right: 2.5px solid #0f172a; }
+    table.lgrid tr.thick-b td, table.lgrid tr.thick-b th { border-bottom: 2.5px solid #0f172a; }
+    .verdict-box {
+      background: #f1f5f9;
+      border: 2px solid #0f172a;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .verdict-box h4 {
+      font-family: ui-monospace, monospace;
+      font-size: 12.5px;
+      margin-bottom: 10px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    select {
+      padding: 7px 10px;
+      border-radius: 6px;
+      border: 1.5px solid #334155;
+      font-size: 13px;
+      background: #fff;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: #0f172a;
+      color: var(--yellow);
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-weight: 800;
+      cursor: pointer;
+      flex: 1;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+      border: 1px solid #94a3b8;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .result-banner {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+    .result-banner.win { display: block; background: #dcfce7; border: 2px solid var(--green); color: #14532d; }
+    .result-banner.fail { display: block; background: #fee2e2; border: 2px solid var(--red); color: #7f1d1d; }
+    .book-promo {
+      max-width: 1040px;
+      margin: 28px auto 0;
+      padding: 24px 20px;
+      background: var(--panel);
+      border: 2px solid var(--yellow);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .book-promo h2 { color: var(--yellow); margin-bottom: 8px; }
+    .book-promo p { color: #cbd5e1; max-width: 720px; margin: 0 auto 14px; }
+    .badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; font-family: ui-monospace, monospace; font-size: 12px; color: #f8fafc; }
+    .badges span { background: #0f172a; padding: 6px 12px; border-radius: 999px; border: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <div class="hazard"></div>
+  <header>
+    <div class="pill">INTERNAL BUREAU OF PETTY OFFENSES // INTERACTIVE CASE LAB</div>
+    <h1>WHO ATE THE <span>LABELED LUNCH?</span></h1>
+    <p class="sub">Crack a real workplace felony right in your browser! Click any grid square to cycle <strong>✗ (Eliminate)</strong> &rarr; <strong>✓ (Match)</strong> &rarr; Blank.</p>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="loadCase(0)" id="tab0">Sample Case #01: Brianna's Brioche</button>
+      <button class="tab-btn" onclick="loadCase(1)" id="tab1">Reader Bonus Case #31: New Year's Cork Incident</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="dossier-card">
+      <div class="dossier-hdr">
+        <span id="c-code">IBPO-01 // CLASSIFIED</span>
+        <span>EVIDENCE &amp; CLUES</span>
+      </div>
+      <h2 class="case-title" id="c-title"></h2>
+      <p class="summary" id="c-summary"></p>
+      <div class="exhibit">
+        <div class="exhibit-top" id="c-extitle"></div>
+        <pre id="c-exlines"></pre>
+      </div>
+      <ul class="clues" id="c-clues"></ul>
+    </section>
+
+    <section class="dossier-card">
+      <div class="dossier-hdr">
+        <span>L-SHAPED DEDUCTION MATRIX</span>
+        <span>CLICK CELLS: [ ✗ / ✓ ]</span>
+      </div>
+      <p class="grid-help">Every Suspect matches <strong>one</strong> Evidence item and <strong>one</strong> Spot. Need a spoiler-free hint? Click <em>HR Nudge</em> below!</p>
+      <div class="matrix-wrap" id="matrix-host"></div>
+
+      <div class="verdict-box">
+        <h4>SUBMIT OFFICIAL HR INDICTMENT:</h4>
+        <div class="form-row"><label>Guilty Suspect:</label><select id="sel-s"></select></div>
+        <div class="form-row"><label>Key Evidence:</label><select id="sel-i"></select></div>
+        <div class="form-row"><label>Crime Spot:</label><select id="sel-l"></select></div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="checkVerdict()">FILE INDICTMENT</button>
+          <button class="btn-secondary" onclick="showNudge()">HR NUDGE</button>
+          <button class="btn-secondary" onclick="resetGrid()">CLEAR GRID</button>
+        </div>
+        <div id="res-box" class="result-banner"></div>
+      </div>
+    </section>
+  </main>
+
+  <section class="book-promo">
+    <h2>Craving 30 Full Print-Dossier Cold Cases (+ 8 Cut-Out Office Crime Tickets)?</h2>
+    <p>The full 108-page 8.5" &times; 11" paperback dossier features flat no-flip two-page spreads, odor-plume floor plans, encrypted Secret Santa sticky notes, 'Three Truths &amp; One Liar' HR interrogations, and cut-out violation citations for your real breakroom!</p>
+    <div class="badges">
+      <span>✓ 30 Verified Unique Cases</span>
+      <span>✓ 3 Escalating Clearance Tiers</span>
+      <span>✓ 8 Cut-Out Coworker Tickets</span>
+      <span>✓ Search "Who Ate the Labeled Lunch" on Amazon</span>
+    </div>
+  </section>
+
+  <script>
+    const CASES = [
+      {
+        code: "IBPO-01 // SAMPLE CASE",
+        title: "Case #01: The Bite Out of Brianna's Brioche",
+        summary: "At 12:04 PM, Accounting's Brianna opened the communal fridge to retrieve her turkey-cranberry brioche—armored in three sticky notes reading 'BRIANNA'S — DO NOT PERCEIVE.' Inside sat the sandwich with a single crescent bite missing from the center! Whoever holds the Cranberry Crumb Napkin is our lunch felon.",
+        exTitle: "EXHIBIT A: KEYCARD SWIPE TERMINAL #04",
+        exLines: "12:06:11 | STAIRWELL_B_DOOR   | USER: CHAD_S    | GRANTED\n12:07:44 | WELLNESS_POD_LOCK  | ITEM_SCAN: SHAKE| DETECTED\n12:09:02 | COPY_ALCOVE_READER | USER: NOT_DEVON | ANOMALY",
+        suspects: ["Meredith (Payroll)", "Chad from Sales", "Devon the Intern"],
+        items: ["Empty Takeout Bag", "Cranberry Crumb Napkin", "Cold Protein Shake"],
+        locs: ["Stairwell B", "Copy Room Alcove", "Wellness Nap Pod"],
+        clues: [
+          "Keycard logs confirm Chad from Sales bolted straight into Stairwell B at 12:06 PM.",
+          "The suspect hiding inside the Wellness Nap Pod brought the Cold Protein Shake.",
+          "Devon the Intern never went near the Copy Room Alcove (he still doesn't know the toner PIN).",
+          "Whoever carried the Empty Takeout Bag was spotted lurking in Stairwell B."
+        ],
+        nudge: "HR NUDGE: Lock Chad into Stairwell B (Clue 1), then link Stairwell B with the Empty Takeout Bag (Clue 4). Next, see where Devon CAN go!",
+        ans: { s: "Meredith (Payroll)", i: "Cranberry Crumb Napkin", l: "Copy Room Alcove" },
+        outcome: "CASE SOLVED! Meredith confessed she 'only wanted to sample the crust-to-cranberry ratio.' Sentence: Mandatory 90-minute seminar titled 'If It Has a Name, It Is Not Free Tapas.'"
+      },
+      {
+        code: "IBPO-31 // EXCLUSIVE READER BONUS",
+        title: "Bonus Case #31: The Ceiling Tile Champagne Crater",
+        summary: "During the 4:30 PM Holiday Toast, someone aimed an unchilled bottle of sparkling apple cider straight upward, blasting an Acoustic Ceiling Tile in half and showering IT's router rack! Whoever currently pockets the Wire Cork Cage is guilty.",
+        exTitle: "EXHIBIT BONUS: PARTY SNAPSHOT TIMESTAMP LOG",
+        exLines: "16:31:05 | PHOTOBOOTH_CURTAIN | USER: TRISH_HR  | PAPER HAT ON\n16:31:18 | ROUTER_ALCOVE      | WET FOAM DETECTED + WIRE CAGE\n16:31:40 | SNACK_BUFFET       | PLASTIC FLUTE SPOTTED (NO CAGE)",
+        suspects: ["Trish (HR)", "lenny (Sales)", "Samir (Legal)"].map(x => x.replace(/^l/, "L")),
+        items: ["Paper Party Horn", "Wire Cork Cage", "Plastic Flute"],
+        locs: ["Photobooth Curtain", "Router Alcove", "Snack Buffet"],
+        clues: [
+          "Trish stayed inside the Photobooth Curtain blowing a Paper Party Horn.",
+          "The Wire Cork Cage was recovered dripping beside the Router Alcove.",
+          "Samir has a fear of blinking server lights and stayed beside the Snack Buffet."
+        ],
+        nudge: "HR NUDGE: Trish takes Photobooth + Party Horn (Clue 1), and Samir takes Snack Buffet (Clue 3)—leaving only one suspect for the Router Alcove!",
+        ans: { s: "Lenny (Sales)", i: "Wire Cork Cage", l: "Router Alcove" },
+        outcome: "BONUS CASE CRACKED! Lenny admitted trying to open the bottle with a stapler like a saber. Sentence: Hand-drying every ethernet cable with paper towels."
+      }
+    ];
+
+    let curIdx = 0;
+
+    function loadCase(idx) {
+      curIdx = idx;
+      document.getElementById("tab0").classList.toggle("active", idx === 0);
+      document.getElementById("tab1").classList.toggle("active", idx === 1);
+      const c = CASES[idx];
+      document.getElementById("c-code").textContent = c.code;
+      document.getElementById("c-title").textContent = c.title;
+      document.getElementById("c-summary").textContent = c.summary;
+      document.getElementById("c-extitle").textContent = c.exTitle;
+      document.getElementById("c-exlines").textContent = c.exLines;
+
+      const ul = document.getElementById("c-clues");
+      ul.innerHTML = "<h3>Verified Investigative Clues:</h3>" + c.clues.map((t, i) => `<li><strong>[${i+1}]</strong>${t}</li>`).join("");
+
+      const fillSel = (id, arr) => {
+        document.getElementById(id).innerHTML = `<option value="">-- Select --</option>` + arr.map(v => `<option value="${v}">${v}</option>`).join("");
+      };
+      fillSel("sel-s", c.suspects);
+      fillSel("sel-i", c.items);
+      fillSel("sel-l", c.locs);
+
+      const res = document.getElementById("res-box");
+      res.className = "result-banner";
+      res.style.display = "none";
+      buildMatrix(c);
+    }
+
+    function buildMatrix(c) {
+      const n = c.suspects.length;
+      let html = `<table class="lgrid"><thead><tr><th></th>`;
+      c.items.forEach((it, idx) => html += `<th class="vhead ${idx===n-1?'thick-r':''}">${it}</th>`);
+      c.locs.forEach((lc, idx) => html += `<th class="vhead ${idx===n-1?'thick-r':''}">${lc}</th>`);
+      html += `</tr></thead><tbody>`;
+
+      c.suspects.forEach((s, ri) => {
+        html += `<tr class="${ri===n-1?'thick-b':''}">` + `<th class="rhead">${s}</th>`;
+        for (let ci = 0; ci < 2 * n; ci++) {
+          html += `<td class="cell ${ci===n-1 || ci===2*n-1 ? 'thick-r':''}" onclick="cycleCell(this)"></td>`;
+        }
+        html += `</tr>`;
+      });
+
+      c.locs.forEach((lc, ri) => {
+        html += `<tr class="${ri===n-1?'thick-b':''}">` + `<th class="rhead">${lc}</th>`;
+        for (let ci = 0; ci < n; ci++) {
+          html += `<td class="cell ${ci===n-1 ? 'thick-r':''}" onclick="cycleCell(this)"></td>`;
+        }
+        html += `<td colspan="${n}" style="border:none;background:transparent;"></td></tr>`;
+      });
+
+      html += `</tbody></table>`;
+      document.getElementById("matrix-host").innerHTML = html;
+    }
+
+    function cycleCell(td) {
+      const cur = td.getAttribute("data-val") || "";
+      if (cur === "") { td.setAttribute("data-val", "X"); td.textContent = "✗"; }
+      else if (cur === "X") { td.setAttribute("data-val", "O"); td.textContent = "✓"; }
+      else { td.setAttribute("data-val", ""); td.textContent = ""; }
+    }
+
+    function resetGrid() { buildMatrix(CASES[curIdx]); }
+
+    function showNudge() {
+      const res = document.getElementById("res-box");
+      res.className = "result-banner win";
+      res.style.display = "block";
+      res.textContent = CASES[curIdx].nudge;
+    }
+
+    function checkVerdict() {
+      const c = CASES[curIdx];
+      const s = document.getElementById("sel-s").value;
+      const i = document.getElementById("sel-i").value;
+      const l = document.getElementById("sel-l").value;
+      const res = document.getElementById("res-box");
+      res.style.display = "block";
+      if (s === c.ans.s && i === c.ans.i && l === c.ans.l) {
+        res.className = "result-banner win";
+        res.textContent = "🎉 " + c.outcome;
+      } else {
+        res.className = "result-banner fail";
+        res.textContent = "Not quite! Double-check your elimination rows and columns—or click 'HR Nudge' for a clue!";
+      }
+    }
+
+    loadCase(0);
+  </script>
+</body>
+</html>
